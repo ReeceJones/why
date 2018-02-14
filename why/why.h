@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
@@ -97,6 +98,28 @@ namespace CPHelper
 			}
 			return removeChar(sprime, (char)-1);
 		}
+		vector<string> removeAboveThreshold(vector<string> data, unsigned short threshhold)
+		{
+			unordered_map<char, unsigned short> countMap;
+			for (string str : data)
+				for (char c : str)
+					countMap[c]++;
+			vector<string> ret = data;
+			for (string &str : ret)
+				for (auto it : countMap)
+					if (it.second > threshhold)
+						str.erase(remove(str.begin(), str.end(), it.first), str.end());
+			return ret;
+		}
+		string removeAboveThreshold(string data, unsigned int threshold)
+		{
+			vector<string> t = { data };
+			return removeAboveThreshold(t, threshold).at(0);
+		}
+		string sharedLetters(string in)
+		{
+			
+		}
 	}
 	namespace math
 	{
@@ -142,14 +165,27 @@ namespace CPHelper
 			{
 				return this->bufHeight;
 			}
+			void setWidth(unsigned short newWidth)
+			{
+				this->bufWidth = newWidth;
+			}
+			void setHeight(unsigned short newHeight)
+			{
+				this->bufHeight = newHeight;
+			}
 			void writeToBuffer(unsigned short x, unsigned short y, char c)
 			{
-				this->outBuffer.at(y).at(x) = c;
+				if (x >= this->bufWidth)
+					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
+				else if (y >= this->bufHeight)
+					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
+				else
+					this->outBuffer.at(y).at(x) = c;
 			}
 			void display()
 			{
 				for (string ln : this->outBuffer)
-					cout << ln;
+					cout << ln << endl;
 			}
 		private:
 			unsigned short bufWidth, bufHeight;
