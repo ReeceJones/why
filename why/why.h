@@ -69,56 +69,13 @@ namespace CPHelper
 		{
 			return getSingleLine(cin);
 		}
-		vector<string> getTokens(string inputString, char delimiter)
+		template<typename T>
+		bool inList(T val, vector<T> v)
 		{
-			vector<string> tokens;
-			stringstream ss(inputString);
-			string buf;
-			while (getline(ss, buf, delimiter))
-			{
-				tokens.push_back(buf);
-			}
-			return tokens;
-		}
-		string removeChar(string base, char rem)
-		{
-			string baseprime = base;
-			baseprime.erase(remove(baseprime.begin(), baseprime.end(), rem), baseprime.end());
-			return baseprime;
-		}
-		//actually eye cancer
-		string removeNthOccurence(unsigned short n, string s)
-		{
-			string sprime = s;
-			unsigned int index = 0;
-			while (index < sprime.size())
-			{
-				sprime.at(index) = -1;
-				index += (n);
-			}
-			return removeChar(sprime, (char)-1);
-		}
-		vector<string> removeAboveThreshold(vector<string> data, unsigned short threshhold)
-		{
-			unordered_map<char, unsigned short> countMap;
-			for (string str : data)
-				for (char c : str)
-					countMap[c]++;
-			vector<string> ret = data;
-			for (string &str : ret)
-				for (auto it : countMap)
-					if (it.second > threshhold)
-						str.erase(remove(str.begin(), str.end(), it.first), str.end());
-			return ret;
-		}
-		string removeAboveThreshold(string data, unsigned int threshold)
-		{
-			vector<string> t = { data };
-			return removeAboveThreshold(t, threshold).at(0);
-		}
-		string sharedLetters(string in)
-		{
-			
+			for (T t : v)
+				if (t == val)
+					return true;
+			return false;
 		}
 	}
 	namespace math
@@ -191,5 +148,82 @@ namespace CPHelper
 			unsigned short bufWidth, bufHeight;
 			vector<string> outBuffer;
 		};
+	}
+	namespace stringprocessor
+	{
+		vector<string> getTokens(string inputString, char delimiter)
+		{
+			vector<string> tokens;
+			stringstream ss(inputString);
+			string buf;
+			while (getline(ss, buf, delimiter))
+			{
+				tokens.push_back(buf);
+			}
+			return tokens;
+		}
+		string shared(vector<string> v)
+		{
+			string ret = "";
+			unordered_map<char, bool> presentMap;
+			//start out with every single character in the vector being true
+			for (string s : v)
+				for (char t : s)
+					presentMap[t] = true;
+			cout << "\t*********" << endl;
+			//loop each set key (will only be the ones present in the vector)
+			for (auto it : presentMap)
+			{
+				for (string s : v)
+					if (s.find(it.first) == string::npos)
+						it.second = false;
+				cout << "\t" << it.first << "\t" << it.second << endl;
+				if (it.second == true)
+					ret.push_back(it.first);
+			}
+			cout << "\t*********" << endl;
+			return ret;
+		}
+		string sharedLetters(string in)
+		{
+			vector<string> tok = getTokens(in, ' ');
+			return shared(tok);
+		}
+		string removeChar(string base, char rem)
+		{
+			string baseprime = base;
+			baseprime.erase(remove(baseprime.begin(), baseprime.end(), rem), baseprime.end());
+			return baseprime;
+		}
+		//actually eye cancer
+		string removeNthOccurence(unsigned short n, string s)
+		{
+			string sprime = s;
+			unsigned int index = 0;
+			while (index < sprime.size())
+			{
+				sprime.at(index) = -1;
+				index += (n);
+			}
+			return removeChar(sprime, (char)-1);
+		}
+		vector<string> removeAboveThreshold(vector<string> data, unsigned short threshhold)
+		{
+			unordered_map<char, unsigned short> countMap;
+			for (string str : data)
+				for (char c : str)
+					countMap[c]++;
+			vector<string> ret = data;
+			for (string &str : ret)
+				for (auto it : countMap)
+					if (it.second > threshhold)
+						str.erase(remove(str.begin(), str.end(), it.first), str.end());
+			return ret;
+		}
+		string removeAboveThreshold(string data, unsigned int threshold)
+		{
+			vector<string> t = { data };
+			return removeAboveThreshold(t, threshold).at(0);
+		}
 	}
 }
