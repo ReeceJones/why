@@ -386,5 +386,30 @@ namespace CPHelper
 			for (T t : initializers)
 				m[t] = def;
 		}
+		template<typename T>
+		T listSum(vector<T> list)
+		{
+			T sum = NULL;
+			for (T t : list)
+				sum += t;
+			return sum;
+		}
+		//push the contents of list1 to list 0
+		template<typename T>
+		void mergeList(vector<T> &list0, vector<T> list1)
+		{
+			for (T t : list1)
+				list0.push_back(t);
+		}
+		template<typename T>
+		vector<T> splitList(vector<T> &list)
+		{
+			unsigned int middle = (list.size() / 2) - 1;
+			vector<T> ret = list;
+			//remove the indices from the parameter
+			list.erase(middle, list.size());
+			ret.erase(0, middle);
+			return ret;
+		}
 	}
 }
