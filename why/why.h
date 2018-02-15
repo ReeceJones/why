@@ -5,6 +5,7 @@
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
+#include <map>
 
 using namespace std;
 
@@ -313,5 +314,17 @@ namespace CPHelper
 			//container for all of our nodes, doesn't need to be sorted
 			vector<Node*> nodeTree;
 		};
+		template<typename T, typename V>
+		void setUnorderedMapDefault(unordered_map<T, V> &m, vector<T> initializers, V def)
+		{
+			for (T t : initializers)
+				m[t] = def;
+		}
+		template<typename T, typename V>
+		void setMapDefault(map<T, V> &map, vector<T> initializers, V def)
+		{
+			for (T t : initializers)
+				m[t] = def;
+		}
 	}
 }
