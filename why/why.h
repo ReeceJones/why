@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <map>
+#include <bitset>
 
 using namespace std;
 
@@ -217,6 +218,65 @@ namespace CPHelper
 		{
 			vector<string> t = { data };
 			return removeAboveThreshold(t, threshold).at(0);
+		}
+		string escapeHexCode(string hexVal)
+		{
+			string ret;
+			for (int i = 0; i< hexVal.length(); i += 2)
+			{
+				string byte = hexVal.substr(i, 2);
+				char chr = (char)(int)strtol(byte.c_str(), NULL, 16);
+				ret.push_back(chr);
+			}
+			return ret;
+		}
+		string escapeBinary(string binVal)
+		{
+			stringstream ss(binVal);
+			string ret;
+			while (ss.good())
+			{
+				bitset<8> bits;
+				ss >> bits;
+				char c = char(bits.to_ulong());
+				ret.push_back(c);
+			}
+			return ret;
+		}
+		string escapeDecimal(string decVal)
+		{
+			string ret;
+			ret.push_back((char)atoi(decVal.c_str()));
+			return ret;
+		}
+		string escapeOctal(string octVal)
+		{
+			string ret;
+			ret.push_back((char)stoi(octVal.c_str(), 0, 8));
+			return ret;
+		}
+		string toHex(char c)
+		{
+			char buf[128];
+			sprintf(buf, "%X", c);
+			string ret = buf;
+			return ret;
+		}
+		string toBinary(char c)
+		{
+			return CPHelper::bitwise::rawData<char>(&c);
+		}
+		string toOctal(char c)
+		{
+			int rem, i = 1, o = 0;
+			while (c != 0)
+			{
+				rem = c % 8;
+				c /= 8;
+				o += rem * i;
+				i *= 10;
+			}
+			return to_string(o);
 		}
 	}
 	namespace dataprocessor
