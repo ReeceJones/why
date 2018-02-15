@@ -69,14 +69,6 @@ namespace CPHelper
 		{
 			return getSingleLine(cin);
 		}
-		template<typename T>
-		bool inList(T val, vector<T> v)
-		{
-			for (T t : v)
-				if (t == val)
-					return true;
-			return false;
-		}
 	}
 	namespace math
 	{
@@ -225,5 +217,101 @@ namespace CPHelper
 			vector<string> t = { data };
 			return removeAboveThreshold(t, threshold).at(0);
 		}
+	}
+	namespace dataprocessor
+	{
+		template<typename T>
+		T min(vector<T> v, T max)
+		{
+			T m = max;
+			for (T t : v)
+				if (t < m)
+					m = t;
+			return m;
+		}
+		template<typename T>
+		T max(vector<T> v, T min)
+		{
+			T m = min;
+			for (T t : v)
+				if (t > m)
+					m = t;
+			return m;
+		}
+		template<typename T>
+		class BinarySearchTree
+		{
+		public:
+			struct Node
+			{
+				Node(T _v)
+				{
+					val = _v;
+					less = nullptr;
+					more = nullptr;
+				}
+				T val;
+				Node* less;
+				Node* more;
+			};
+			BinarySearchTree()
+			{
+				this->root = nullptr;
+				this->nodeTree.clear();
+			}
+			BinarySearchTree(T _root)
+			{
+				this->root = new Node(_root);
+				this->nodeTree.clear();
+				this->nodeTree.push_back(this->root);
+			}
+			void insert(T val)
+			{
+				nodeTree.push_back(new Node(val));
+				//ignore parameter from here
+				T v = nodeTree.back()->val;
+				Node* parent = this->root;
+				while (parent != nullptr)
+				{
+					//is the less node not set and less than the parent
+					if (parent->less == nullptr && v < parent->val)
+					{
+						parent->less = nodeTree.back();
+						break;
+					}
+					else if (parent->more == nullptr && v >= parent->val)
+					{
+						parent->more = nodeTree.back();
+						break;
+					}
+					else if (parent->val < parent->val)
+					{
+						parent = parent->less;
+					}
+					else
+					{
+						parent = parent->more;
+					}
+				}
+			}
+			T getMin()
+			{
+				Node* parent = this->root;
+				while (parent->less != nullptr)
+					parent = parent->less;
+				return parent->val;
+			}
+			T getMax()
+			{
+				Node* parent = this->root;
+				while (parent->more != nullptr)
+					parent = parent->more;
+				return parent->val;
+			}
+		private:
+			Node* root;
+			//container for all of our nodes, doesn't need to be sorted
+			vector<Node*> nodeTree;
+		};
 	}
 }
