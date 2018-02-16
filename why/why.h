@@ -72,98 +72,138 @@ namespace CPHelper
 			return getSingleLine(cin);
 		}
 	}
-	namespace math
+	namespace dataprocessor
 	{
-		//n: number b: base
-		double logBase(double n, double b)
+		template<typename T>
+		T min(vector<T> v, T max)
 		{
-			return (log(n) / log(b));
+			T m = max;
+			for (T t : v)
+				if (t < m)
+					m = t;
+			return m;
 		}
-	}
-	namespace output
-	{
-		class OutputBuffer
+		template<typename T>
+		T max(vector<T> v, T min)
+		{
+			T m = min;
+			for (T t : v)
+				if (t > m)
+					m = t;
+			return m;
+		}
+		template<typename T>
+		class BinarySearchTree
 		{
 		public:
-			//default constructor
-			OutputBuffer()
+			struct Node
 			{
-				this->bufHeight = 0;
-				this->bufWidth = 0;
-				this->outBuffer.clear();
-				this->lockBuffer.clear();
+				Node(T _v)
+				{
+					val = _v;
+					less = nullptr;
+					more = nullptr;
+				}
+				T val;
+				Node* less;
+				Node* more;
+			};
+			BinarySearchTree()
+			{
+				this->root = nullptr;
+				this->nodeTree.clear();
 			}
-			//construct based on height and width and have a blank buffer
-			OutputBuffer(unsigned short _width, unsigned short _height)
+			BinarySearchTree(T _root)
 			{
-				this->bufHeight = _height;
-				this->bufWidth = _width;
-				outBuffer.clear();
-				this->lockBuffer.clear();
+				this->root = new Node(_root);
+				this->nodeTree.clear();
+				this->nodeTree.push_back(this->root);
 			}
-			//construct with width and heigt and fill buffer with a certain character
-			OutputBuffer(unsigned short _width, unsigned short _height, char fillCh)
+			void insert(T val)
 			{
-				this->bufHeight = _height;
-				this->bufWidth = _width;
-				outBuffer.clear();
-				for (unsigned short s = 0; s < this->bufHeight; s++)
-					outBuffer.push_back(string(this->bufWidth, fillCh));
+				nodeTree.push_back(new Node(val));
+				//ignore parameter from here
+				T v = nodeTree.back()->val;
+				Node* parent = this->root;
+				while (parent != nullptr)
+				{
+					//is the less node not set and less than the parent
+					if (parent->less == nullptr && v < parent->val)
+					{
+						parent->less = nodeTree.back();
+						break;
+					}
+					else if (parent->more == nullptr && v >= parent->val)
+					{
+						parent->more = nodeTree.back();
+						break;
+					}
+					else if (parent->val < parent->val)
+					{
+						parent = parent->less;
+					}
+					else
+					{
+						parent = parent->more;
+					}
+				}
 			}
-			unsigned short getWidth()
+			T getMin()
 			{
-				return this->bufWidth;
+				Node* parent = this->root;
+				while (parent->less != nullptr)
+					parent = parent->less;
+				return parent->val;
 			}
-			unsigned short getHeight()
+			T getMax()
 			{
-				return this->bufHeight;
-			}
-			void setWidth(unsigned short newWidth)
-			{
-				this->bufWidth = newWidth;
-			}
-			void setHeight(unsigned short newHeight)
-			{
-				this->bufHeight = newHeight;
-			}
-			void writeToBuffer(unsigned short x, unsigned short y, char c)
-			{
-				if (x >= this->bufWidth)
-					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
-				else if (y >= this->bufHeight)
-					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
-				else if (CPHelper::stringprocessor::containsChar(this->lockBuffer, this->outBuffer.at(y).at(x)))
-					cout << "error: cannot write to locked character: " << "(" << x << ", " << y << ")" << " character: " << this->outBuffer.at(y).at(x) << endl;
-				else
-					this->outBuffer.at(y).at(x) = c;
-			}
-			void display()
-			{
-				for (string ln : this->outBuffer)
-					cout << ln << endl;
-			}
-			bool writable(unsigned int x0, unsigned int y0, char check)
-			{
-				return this->outBuffer.at(y0).at(x0) == check;
-			}
-			//set unwritable character
-			void lock(char chLock)
-			{
-				for (char c : this->lockBuffer)
-					if (c == chLock)
-						return;
-				this->lockBuffer.push_back(chLock);
-			}
-			//set writable character (has to be locked)
-			void unlock(char chLock)
-			{
-				lockBuffer = CPHelper::stringprocessor::removeChar(lockBuffer, chLock);
+				Node* parent = this->root;
+				while (parent->more != nullptr)
+					parent = parent->more;
+				return parent->val;
 			}
 		private:
-			unsigned short bufWidth, bufHeight;
-			vector<string> outBuffer;
-			string lockBuffer;
+			Node * root;
+			//container for all of our nodes, doesn't need to be sorted
+			vector<Node*> nodeTree;
 		};
+		template<typename T, typename V>
+		void setUnorderedMapDefault(unordered_map<T, V> &m, vector<T> initializers, V def)
+		{
+			for (T t : initializers)
+				m[t] = def;
+		}
+		template<typename T, typename V>
+		void setMapDefault(map<T, V> &map, vector<T> initializers, V def)
+		{
+			for (T t : initializers)
+				m[t] = def;
+		}
+		template<typename T>
+		T listSum(vector<T> list)
+		{
+			T sum = NULL;
+			for (T t : list)
+				sum += t;
+			return sum;
+		}
+		//push the contents of list1 to list 0
+		template<typename T>
+		void mergeList(vector<T> &list0, vector<T> list1)
+		{
+			for (T t : list1)
+				list0.push_back(t);
+		}
+		template<typename T>
+		vector<T> splitList(vector<T> &list)
+		{
+			unsigned int middle = (list.size() / 2) - 1;
+			vector<T> ret = list;
+			//remove the indices from the parameter
+			list.erase(middle, list.size());
+			ret.erase(0, middle);
+			return ret;
+		}
 	}
 	namespace stringprocessor
 	{
@@ -319,138 +359,120 @@ namespace CPHelper
 		{
 			return base.find(ch) != string::npos;
 		}
+		void generateOccuranceMap(string base, unordered_map<char, unsigned int> &umap)
+		{
+			//make sure map is already clear
+			umap.clear();
+			//convert string to char array
+			vector<char> chList;
+			for (char c : base)
+				chList.push_back(c);
+			//set all values we need to 0
+			CPHelper::dataprocessor::setUnorderedMapDefault<char, unsigned int>(umap, chList, 0);
+			//set occurances
+			for (char c : base)
+				umap[c]++;
+		}
 	}
-	namespace dataprocessor
+	namespace math
 	{
-		template<typename T>
-		T min(vector<T> v, T max)
+		//n: number b: base
+		double logBase(double n, double b)
 		{
-			T m = max;
-			for (T t : v)
-				if (t < m)
-					m = t;
-			return m;
+			return (log(n) / log(b));
 		}
-		template<typename T>
-		T max(vector<T> v, T min)
-		{
-			T m = min;
-			for (T t : v)
-				if (t > m)
-					m = t;
-			return m;
-		}
-		template<typename T>
-		class BinarySearchTree
+	}
+	namespace output
+	{
+		class OutputBuffer
 		{
 		public:
-			struct Node
+			//default constructor
+			OutputBuffer()
 			{
-				Node(T _v)
-				{
-					val = _v;
-					less = nullptr;
-					more = nullptr;
-				}
-				T val;
-				Node* less;
-				Node* more;
-			};
-			BinarySearchTree()
-			{
-				this->root = nullptr;
-				this->nodeTree.clear();
+				this->bufHeight = 0;
+				this->bufWidth = 0;
+				this->outBuffer.clear();
+				this->lockBuffer.clear();
 			}
-			BinarySearchTree(T _root)
+			//construct based on height and width and have a blank buffer
+			OutputBuffer(unsigned short _width, unsigned short _height)
 			{
-				this->root = new Node(_root);
-				this->nodeTree.clear();
-				this->nodeTree.push_back(this->root);
+				this->bufHeight = _height;
+				this->bufWidth = _width;
+				outBuffer.clear();
+				this->lockBuffer.clear();
 			}
-			void insert(T val)
+			//construct with width and heigt and fill buffer with a certain character
+			OutputBuffer(unsigned short _width, unsigned short _height, char fillCh)
 			{
-				nodeTree.push_back(new Node(val));
-				//ignore parameter from here
-				T v = nodeTree.back()->val;
-				Node* parent = this->root;
-				while (parent != nullptr)
-				{
-					//is the less node not set and less than the parent
-					if (parent->less == nullptr && v < parent->val)
-					{
-						parent->less = nodeTree.back();
-						break;
-					}
-					else if (parent->more == nullptr && v >= parent->val)
-					{
-						parent->more = nodeTree.back();
-						break;
-					}
-					else if (parent->val < parent->val)
-					{
-						parent = parent->less;
-					}
-					else
-					{
-						parent = parent->more;
-					}
-				}
+				this->bufHeight = _height;
+				this->bufWidth = _width;
+				outBuffer.clear();
+				for (unsigned short s = 0; s < this->bufHeight; s++)
+					outBuffer.push_back(string(this->bufWidth, fillCh));
 			}
-			T getMin()
+			unsigned short getWidth()
 			{
-				Node* parent = this->root;
-				while (parent->less != nullptr)
-					parent = parent->less;
-				return parent->val;
+				return this->bufWidth;
 			}
-			T getMax()
+			unsigned short getHeight()
 			{
-				Node* parent = this->root;
-				while (parent->more != nullptr)
-					parent = parent->more;
-				return parent->val;
+				return this->bufHeight;
+			}
+			void setWidth(unsigned short newWidth)
+			{
+				this->bufWidth = newWidth;
+			}
+			void setHeight(unsigned short newHeight)
+			{
+				this->bufHeight = newHeight;
+			}
+			void writeToBuffer(unsigned short x, unsigned short y, char c)
+			{
+				if (x >= this->bufWidth)
+					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
+				else if (y >= this->bufHeight)
+					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
+				else if (CPHelper::stringprocessor::containsChar(this->lockBuffer, this->outBuffer.at(y).at(x)))
+					cout << "error: cannot write to locked character: " << "(" << x << ", " << y << ")" << " character: " << this->outBuffer.at(y).at(x) << endl;
+				else
+					this->outBuffer.at(y).at(x) = c;
+			}
+			void display()
+			{
+				for (string ln : this->outBuffer)
+					cout << ln << endl;
+			}
+			bool writable(unsigned int x0, unsigned int y0)
+			{
+				return CPHelper::stringprocessor::containsChar(this->lockBuffer, this->outBuffer.at(y0).at(x0));
+			}
+			bool writable(unsigned int x0, unsigned int y0, char check)
+			{
+				return this->outBuffer.at(y0).at(x0) == check;
+			}
+			//set unwritable character
+			void lock(char chLock)
+			{
+				for (char c : this->lockBuffer)
+					if (c == chLock)
+						return;
+				this->lockBuffer.push_back(chLock);
+			}
+			//set writable character (has to be locked)
+			void unlock(char chLock)
+			{
+				lockBuffer = CPHelper::stringprocessor::removeChar(lockBuffer, chLock);
 			}
 		private:
-			Node* root;
-			//container for all of our nodes, doesn't need to be sorted
-			vector<Node*> nodeTree;
+			unsigned short bufWidth, bufHeight;
+			vector<string> outBuffer;
+			string lockBuffer;
 		};
-		template<typename T, typename V>
-		void setUnorderedMapDefault(unordered_map<T, V> &m, vector<T> initializers, V def)
+		void Bododo()
 		{
-			for (T t : initializers)
-				m[t] = def;
-		}
-		template<typename T, typename V>
-		void setMapDefault(map<T, V> &map, vector<T> initializers, V def)
-		{
-			for (T t : initializers)
-				m[t] = def;
-		}
-		template<typename T>
-		T listSum(vector<T> list)
-		{
-			T sum = NULL;
-			for (T t : list)
-				sum += t;
-			return sum;
-		}
-		//push the contents of list1 to list 0
-		template<typename T>
-		void mergeList(vector<T> &list0, vector<T> list1)
-		{
-			for (T t : list1)
-				list0.push_back(t);
-		}
-		template<typename T>
-		vector<T> splitList(vector<T> &list)
-		{
-			unsigned int middle = (list.size() / 2) - 1;
-			vector<T> ret = list;
-			//remove the indices from the parameter
-			list.erase(middle, list.size());
-			ret.erase(0, middle);
-			return ret;
+			cout << "\a";
 		}
 	}
 }
