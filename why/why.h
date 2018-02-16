@@ -615,22 +615,27 @@ namespace CPHelper
 			vector<string> data;
 		};
 
-		vector<Node> getSuccessors(Node* n, Node end, Field* field, string movable, bool useDiagonal)
+		vector<Node> getSuccessors(Node* n, Node end, Field* field, string movable, unsigned int flags)
 		{
+			bool useDiagonal = flags & PATHFIND_DIAGONAL;
+			bool useNormal = flags & PATHFIND_NORMAL;
 			vector<Node> vecRet;
-			Node x = { n, n->x + 1, n->y, n->g + 1, dist(n->x + 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y, end.x, end.y) };
-			if (field->canMove(x, movable))
-				vecRet.push_back(x);
-			x = { n, n->x - 1, n->y, n->g + 1, dist(n->x - 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y, end.x, end.y) };
-			if (field->canMove(x, movable))
-				vecRet.push_back(x);
-			x = { n, n->x, n->y + 1, n->g + 1, dist(n->x, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y + 1, end.x, end.y) };
-			if (field->canMove(x, movable))
-				vecRet.push_back(x);
-			x = { n, n->x, n->y - 1, n->g + 1, dist(n->x, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y - 1, end.x, end.y) };
-			if (field->canMove(x, movable))
-				vecRet.push_back(x);
-
+			Node x;
+			if (useNormal)
+			{
+				x = { n, n->x + 1, n->y, n->g + 1, dist(n->x + 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+				x = { n, n->x - 1, n->y, n->g + 1, dist(n->x - 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+				x = { n, n->x, n->y + 1, n->g + 1, dist(n->x, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y + 1, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+				x = { n, n->x, n->y - 1, n->g + 1, dist(n->x, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y - 1, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+			}
 			if (useDiagonal)
 			{
 				x = { n, n->x + 1, n->y + 1, n->g + 1, dist(n->x + 1, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y + 1, end.x, end.y) };
@@ -701,7 +706,7 @@ namespace CPHelper
 				Node* parent = new Node(q.parent, q.x, q.y, q.g, q.h, q.f);
 				//now we need to get the successors (assume that this works for now)
 				parents.push_back(parent);
-				vector<Node> successors = getSuccessors(parents.back(), end, field, movable, flags & PATHFIND_DIAGONAL);
+				vector<Node> successors = getSuccessors(parents.back(), end, field, movable, flags);
 				//cout << q.x << "," << q.y << endl;
 				//check what successor we should use
 				for (Node s : successors)
