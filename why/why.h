@@ -557,7 +557,7 @@ namespace CPHelper
 
 			bool canMove(Node n, string movable)
 			{
-				return (n.x >= 0 && n.y >= 0 && n.x < this->data.at(0).size() && n.y < this->data.size() && this->data.at(n.y).at(n.x) == '.');
+				return (n.x >= 0 && n.y >= 0 && n.x < this->data.at(0).size() && n.y < this->data.size() && CPHelper::stringprocessor::containsChar(movable, this->data.at(n.y).at(n.x)));
 			}
 
 			void display(Node n)
@@ -702,6 +702,7 @@ namespace CPHelper
 			{
 				//the current node which is the node with the least f value in the open list
 				Node q = getBestNode(open, closed);
+				cout << "q: " << "(" << q.x << ", " << q.y << ")" << endl;
 				//add q to a list of parent nodes, to make sure we don't lose the parent node
 				Node* parent = new Node(q.parent, q.x, q.y, q.g, q.h, q.f);
 				//now we need to get the successors (assume that this works for now)
