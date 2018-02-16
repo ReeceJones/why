@@ -91,6 +91,7 @@ namespace CPHelper
 				this->bufHeight = 0;
 				this->bufWidth = 0;
 				this->outBuffer.clear();
+				this->lockBuffer.clear();
 			}
 			//construct based on height and width and have a blank buffer
 			OutputBuffer(unsigned short _width, unsigned short _height)
@@ -98,6 +99,7 @@ namespace CPHelper
 				this->bufHeight = _height;
 				this->bufWidth = _width;
 				outBuffer.clear();
+				this->lockBuffer.clear();
 			}
 			//construct with width and heigt and fill buffer with a certain character
 			OutputBuffer(unsigned short _width, unsigned short _height, char fillCh)
@@ -130,6 +132,8 @@ namespace CPHelper
 					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
 				else if (y >= this->bufHeight)
 					cout << "error: writing to buffer at invalid index: (" << x << ", " << y << ")" << endl;
+				else if (CPHelper::stringprocessor::containsChar(this->lockBuffer, this->outBuffer.at(y).at(x)))
+					cout << "error: cannot write to locked character: " << "(" << x << ", " << y << ")" << " character: " << this->outBuffer.at(y).at(x) << endl;
 				else
 					this->outBuffer.at(y).at(x) = c;
 			}
@@ -138,9 +142,27 @@ namespace CPHelper
 				for (string ln : this->outBuffer)
 					cout << ln << endl;
 			}
+			bool writable(unsigned int x0, unsigned int y0, char check)
+			{
+				return this->outBuffer.at(y0).at(x0) == check;
+			}
+			//set unwritable character
+			void lock(char chLock)
+			{
+				for (char c : this->lockBuffer)
+					if (c == chLock)
+						return;
+				this->lockBuffer.push_back(chLock);
+			}
+			//set writable character (has to be locked)
+			void unlock(char chLock)
+			{
+				lockBuffer = CPHelper::stringprocessor::removeChar(lockBuffer, chLock);
+			}
 		private:
 			unsigned short bufWidth, bufHeight;
 			vector<string> outBuffer;
+			string lockBuffer;
 		};
 	}
 	namespace stringprocessor
@@ -277,6 +299,25 @@ namespace CPHelper
 				i *= 10;
 			}
 			return to_string(o);
+		}
+		bool containsChar(string base, string cmp)
+		{
+			for (char c : cmp)
+				if (base.find(c) != string::npos)
+					return true;
+			return false;
+		}
+		bool containsChar(string base, vector<char> cmp)
+		{
+			string cmpStr;
+			cmpStr.clear();
+			for (char c : cmp)
+				cmpStr.push_back(c);
+			return containsChar(base, cmpStr);
+		}
+		bool containsChar(string base, char ch)
+		{
+			return base.find(ch) != string::npos;
 		}
 	}
 	namespace dataprocessor
