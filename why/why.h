@@ -475,4 +475,8 @@ namespace CPHelper
 			cout << "\a";
 		}
 	}
+	namespace pathfinding
+	{
+
+	}
 }
