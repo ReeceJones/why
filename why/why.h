@@ -7,8 +7,14 @@
 #include <unordered_map>
 #include <map>
 #include <bitset>
+#include <queue>
+#include <functional>
+#include <cmath>
 
 using namespace std;
+
+#define PATHFIND_NORMAL (1 << 0)
+#define PATHFIND_DIAGONAL (1 << 1)
 
 //named the namespace the wrong thing because i was thinking of something else, so I guess it stands for "copy-paste helper"
 namespace CPHelper
@@ -477,6 +483,292 @@ namespace CPHelper
 	}
 	namespace pathfinding
 	{
+		struct Node
+		{
+			Node* parent;
+			int x, y;
+			float g, h, f;
 
+
+			bool operator==(const Node& right)
+			{
+				return x == right.x && y == right.y;
+			}
+
+			Node(Node* p, int _x, int _y, float _g, float _h, float _f)
+			{
+				parent = p;
+				x = _x;
+				y = _y;
+				g = _g;
+				h = _h;
+				f = _f;
+			}
+
+			Node() {};
+		};
+
+		bool isInVector(int x, int y, vector<Node> list)
+		{
+			for (Node n : list)
+				if (n.x == x && n.y == y)
+					return true;
+			return false;
+		}
+
+		Node getBestNode(priority_queue<Node, vector<Node>, greater<Node>>& queue, vector<Node> closed)
+		{
+			bool valid = false;
+			Node cBest;
+			while (valid == false)
+			{
+				cBest = queue.top();
+				if (isInVector(cBest.x, cBest.y, closed) == false)
+					valid = true;
+				else
+					queue.pop(); //remove the top node, we do this to the queue list, because this means less computation in future
+			}
+			return cBest;
+		}
+
+		float dist(int x0, int y0, int x1, int y1)
+		{
+			return sqrt(pow(fabs(x0 - x1), 2) + pow(fabs(y0 - y1), 2));
+		}
+
+		int nodeExists(Node n, vector<Node> list)
+		{
+			for (unsigned int i = 0; i < list.size(); i++)
+			{
+				Node tmp = list.at(i);
+				if (tmp.x == n.x && tmp.y == n.y)
+					return i;
+			}
+			return -1;
+		}
+
+		class Field
+		{
+		public:
+			Field(vector<string> field)
+			{
+				this->data = field;
+			}
+
+			bool canMove(Node n, string movable)
+			{
+				return (n.x >= 0 && n.y >= 0 && n.x < this->data.at(0).size() && n.y < this->data.size() && this->data.at(n.y).at(n.x) == '.');
+			}
+
+			void display(Node n)
+			{
+				vector<string> tmpData = this->data;
+				Node tmpNode = n;
+				tmpData.at(tmpNode.y).at(tmpNode.x) = '*';
+				do
+				{
+					tmpNode = *tmpNode.parent;
+					tmpData.at(tmpNode.y).at(tmpNode.x) = '*';
+				} while (tmpNode.parent != nullptr);
+
+				for (string ln : tmpData)
+					cout << ln << endl;
+			}
+
+			vector<Node> getBarriers(string movable)
+			{
+				vector<Node> vRet;
+				for (unsigned int h = 0; h < this->data.size(); h++)
+				{
+					string ln = this->data[h];
+					for (unsigned int w = 0; w < this->data.size(); w++)
+					{
+						char c = ln[w];
+						if (!CPHelper::stringprocessor::containsChar(movable, c))
+						{
+							Node tmp;
+							tmp.x = w;
+							tmp.y = h;
+							vRet.push_back(tmp);
+						}
+					}
+				}
+				return vRet;
+			}
+
+			void setBarrier(int x, int y, char bar)
+			{
+				this->data.at(y).at(x) = bar;
+			}
+
+			void removeBarrier(int x, int y, char bar)
+			{
+				this->data.at(y).at(x) = bar;
+			}
+
+			void reset(char chReset)
+			{
+				for (string& str : this->data)
+					str = string(str.size(), chReset);
+			}
+		private:
+			vector<string> data;
+		};
+
+		vector<Node> getSuccessors(Node* n, Node end, Field* field, string movable, bool useDiagonal)
+		{
+			vector<Node> vecRet;
+			Node x = { n, n->x + 1, n->y, n->g + 1, dist(n->x + 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y, end.x, end.y) };
+			if (field->canMove(x, movable))
+				vecRet.push_back(x);
+			x = { n, n->x - 1, n->y, n->g + 1, dist(n->x - 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y, end.x, end.y) };
+			if (field->canMove(x, movable))
+				vecRet.push_back(x);
+			x = { n, n->x, n->y + 1, n->g + 1, dist(n->x, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y + 1, end.x, end.y) };
+			if (field->canMove(x, movable))
+				vecRet.push_back(x);
+			x = { n, n->x, n->y - 1, n->g + 1, dist(n->x, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y - 1, end.x, end.y) };
+			if (field->canMove(x, movable))
+				vecRet.push_back(x);
+
+			if (useDiagonal)
+			{
+				x = { n, n->x + 1, n->y + 1, n->g + 1, dist(n->x + 1, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y + 1, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+				x = { n, n->x - 1, n->y - 1, n->g + 1, dist(n->x - 1, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y - 1, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+				x = { n, n->x - 1, n->y + 1, n->g + 1, dist(n->x - 1, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y + 1, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+				x = { n, n->x + 1, n->y - 1, n->g + 1, dist(n->x + 1, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y - 1, end.x, end.y) };
+				if (field->canMove(x, movable))
+					vecRet.push_back(x);
+			}
+
+			return vecRet;
+		}
+		template <class T, class S, class C>
+		S& container(priority_queue<T, S, C>& q)
+		{
+			struct HackedQueue : private priority_queue<T, S, C>
+			{
+				static S& container(priority_queue<T, S, C>& q)
+				{
+					return q.*&HackedQueue::c;
+				}
+			};
+			return HackedQueue::container(q);
+		}
+
+		template <class T, class S, class C>
+		void rep(priority_queue<T, S, C>& q, vector<T> v)
+		{
+			struct HackedQueue : private priority_queue<T, S, C>
+			{
+				static void rep(priority_queue<T, S, C>& q, vector<T> v)
+				{
+					q.*&HackedQueue::c = v;
+				}
+			};
+			HackedQueue::rep(q, v);
+		}
+		bool operator<(const Node left, const Node right)
+		{
+			return left.f < right.f;
+		}
+
+		bool operator>(const Node left, const Node right)
+		{
+			return left.f > right.f;
+		}
+		//solve a path using the A* algorithm
+		//parameters: start, end, field that the algorithm uses, characters that can be moved to, moveset
+		vector<Node> aStar(Node start, Node end, Field* field, string movable, unsigned int flags)
+		{
+			priority_queue<Node, vector<Node>, greater<Node>> open;
+			vector<Node> closed;
+
+			open.push(start);
+			vector<Node*> parents;
+
+			while (open.empty() == false)
+			{
+				//the current node which is the node with the least f value in the open list
+				Node q = getBestNode(open, closed);
+				//add q to a list of parent nodes, to make sure we don't lose the parent node
+				Node* parent = new Node(q.parent, q.x, q.y, q.g, q.h, q.f);
+				//now we need to get the successors (assume that this works for now)
+				parents.push_back(parent);
+				vector<Node> successors = getSuccessors(parents.back(), end, field, movable, flags & PATHFIND_DIAGONAL);
+				//cout << q.x << "," << q.y << endl;
+				//check what successor we should use
+				for (Node s : successors)
+				{
+					//is the successor the end node
+					//cout << s.x << "," << s.y << endl;
+					if (s == end)
+					{
+						closed.push_back(s);
+						while (open.empty() == false)
+						{
+							open.pop();
+						}
+						//idk, i just hope this works
+						break;
+					}
+					else if (field->canMove(s, movable))
+					{
+						int index;
+						bool replaced = false;
+						vector<Node> cont = container(open);
+						//if the node exists in the open list
+						if ((index = nodeExists(s, cont)) != -1)
+						{
+							//if the successor has a lower f value than the one that already exists
+							if (s.f < cont[index].f)
+							{
+								//replace the item in the open list
+								cont[index] = s;
+								//open = { cont };
+								rep(open, cont);
+								replaced = true;
+							}
+						}
+						//if we found this node in the closed list
+						if ((index = nodeExists(s, closed)) != -1)
+						{
+							//if the found node has a lower f value than the one that already exists
+							if (s.f < closed[index].f)
+							{
+								//replace the node with our successor
+								closed[index] = s;
+								replaced = true;
+							}
+						}
+						//add the successor to the open list
+						if (replaced == false)
+							open.push(s);
+					}
+				}
+
+				//add q to the closed list
+				//check for size because of the end node being weird
+				if (open.size() != 0)
+					closed.push_back(q);
+			}
+
+			Node tmpNode = closed.back();
+
+			vector<Node> ret;
+			ret.push_back(tmpNode);
+			do
+			{
+				tmpNode = *tmpNode.parent;
+				ret.push_back(tmpNode);
+			} while (tmpNode.parent != nullptr);
+			return ret;
+		}
 	}
 }
