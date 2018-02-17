@@ -1,4 +1,9 @@
 #pragma once
+/*
+Everything breaks when including winapi headers lol
+So this is really just an extension of stl
+*/
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -444,6 +449,10 @@ namespace CPHelper
 					cout << "error: cannot write to locked character: " << "(" << x << ", " << y << ")" << " character: " << this->outBuffer.at(y).at(x) << endl;
 				else
 					this->outBuffer.at(y).at(x) = c;
+			}
+			char readBuffer(unsigned short x, unsigned short y)
+			{
+				return this->outBuffer.at(y).at(x);
 			}
 			void display()
 			{
