@@ -384,6 +384,36 @@ namespace CPHelper
 			for (char c : base)
 				umap[c]++;
 		}
+		class Dictionary
+		{
+		public:
+			Dictionary()
+			{
+				translationMap.clear();
+			}
+			Dictionary(vector<char> base, vector<const char*> translation)
+			{
+				for (unsigned int i = 0; i < base.size(); i++)
+					this->translationMap[base.at(i)] = translation.at(i);
+			}
+			void dumpDictionary()
+			{
+				for (auto it : this->translationMap)
+				{
+					cout << "\t" << it.first << "\t" << it.second << endl;
+				}
+			}
+			string translate(string str)
+			{
+				string ret = "";
+				for (char c : str)
+					ret += this->translationMap[c];
+				return ret;
+			}
+		private:
+			unordered_map<char, const char*> translationMap;
+			string alphabet = "abcdefghijklmnopqrstuvwxyz";
+		};
 	}
 	namespace math
 	{
