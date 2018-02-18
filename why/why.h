@@ -391,7 +391,7 @@ namespace CPHelper
 			{
 				translationMap.clear();
 			}
-			Dictionary(vector<char> base, vector<const char*> translation)
+			Dictionary(vector<char> base, vector<string> translation)
 			{
 				for (unsigned int i = 0; i < base.size(); i++)
 					this->translationMap[base.at(i)] = translation.at(i);
@@ -411,7 +411,7 @@ namespace CPHelper
 				return ret;
 			}
 		private:
-			unordered_map<char, const char*> translationMap;
+			unordered_map<char, string> translationMap;
 			string alphabet = "abcdefghijklmnopqrstuvwxyz";
 		};
 	}
@@ -422,6 +422,8 @@ namespace CPHelper
 		{
 			return (log(n) / log(b));
 		}
+		const double PI = 3.1415926535897932384626433832795028;
+		const double E = 2.71828182845904523536028747135266249;
 	}
 	namespace output
 	{
