@@ -424,6 +424,36 @@ namespace CPHelper
 		}
 		const double PI = 3.1415926535897932384626433832795028;
 		const double E = 2.71828182845904523536028747135266249;
+		template<typename T>
+		vector<T> invert(vector<T> v)
+		{
+			vector<T> ret;
+			for (T t : v)
+			{
+				ret.push_back(-t);
+			}
+			return t;
+		}
+		//returns the vector with the largest dimension, with sum of elements at each of the lower indecies
+		template<typename T>
+		vector<T> sum(vector<T> l, vector<T> r)
+		{
+			vector<T> ret;
+			bool modLeft = l.size() > r.size();
+			if (modLeft)
+			{
+				ret = l;
+				for (unsigned int i = 0; i < r.size(); i++)
+					ret.at(i) += r.at(i);
+			}
+			else
+			{
+				ret = r;
+				for (unsigned int i = 0; i < l.size(); i++)
+					ret.at(i) += l.at(i);
+			}
+			return ret;
+		}
 	}
 	namespace output
 	{
@@ -520,6 +550,12 @@ namespace CPHelper
 		void Bododo()
 		{
 			cout << "\a";
+		}
+		template<typename T>
+		void printVector(vector<T> vec)
+		{
+			for (T t : vec)
+				cout << t << endl;
 		}
 	}
 	namespace pathfinding
