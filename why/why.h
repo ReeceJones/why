@@ -15,6 +15,7 @@ So this is really just an extension of stl
 #include <queue>
 #include <functional>
 #include <cmath>
+#include <conio.h>
 
 using namespace std;
 
@@ -556,6 +557,14 @@ namespace CPHelper
 		{
 			for (T t : vec)
 				cout << t << endl;
+		}
+		void pause(string msg = "")
+		{
+			cout << msg << endl;
+			//wait for input
+			while (!_kbhit()) {};
+			//clear buffer
+			_getch();
 		}
 	}
 	namespace pathfinding
