@@ -22,6 +22,9 @@ using namespace std;
 #define PATHFIND_NORMAL (1 << 0)
 #define PATHFIND_DIAGONAL (1 << 1)
 
+//comment out if you don't want to use a tie breaker on the pathfinding
+#define USE_TIE_BREAKER
+
 //named the namespace the wrong thing because i was thinking of something else, so I guess it stands for "copy-paste helper"
 namespace CPHelper
 {
@@ -617,9 +620,26 @@ namespace CPHelper
 			return cBest;
 		}
 
-		float dist(int x0, int y0, int x1, int y1)
+		enum HEURISTIC : unsigned int
 		{
-			return sqrt(pow(fabs(x0 - x1), 2) + pow(fabs(y0 - y1), 2));
+			MANHATTAN = 0,
+			EUCLIDEAN,
+			DIAGONAL
+		};
+
+		float dist(int x0, int y0, int x1, int y1, HEURISTIC h = HEURISTIC::EUCLIDEAN)
+		{
+			float dist;
+			switch (h)
+			{
+				case HEURISTIC::EUCLIDEAN: dist = sqrt(pow(fabs(x0 - x1), 2) + pow(fabs(y0 - y1), 2)); break;
+				case HEURISTIC::MANHATTAN: dist = fabs(x0 - x1) + fabs(y0 - y1);
+			}
+			//1 + (1/p); p is the predicted maximum path length (if it is to low the results may be innacurate
+#ifdef USE_TIE_BREAKER
+			dist *= (1.f + (1 / 10000));
+#endif
+			return dist;
 		}
 
 		int nodeExists(Node n, vector<Node> list)
@@ -788,7 +808,7 @@ namespace CPHelper
 			{
 				//the current node which is the node with the least f value in the open list
 				Node q = getBestNode(open, closed);
-				cout << "q: " << "(" << q.x << ", " << q.y << ")" << endl;
+				//cout << "q: " << "(" << q.x << ", " << q.y << ")" << endl;
 				//add q to a list of parent nodes, to make sure we don't lose the parent node
 				Node* parent = new Node(q.parent, q.x, q.y, q.g, q.h, q.f);
 				//now we need to get the successors (assume that this works for now)
