@@ -16,6 +16,7 @@ So this is really just an extension of stl
 #include <functional>
 #include <cmath>
 #include <conio.h>
+#include <chrono>
 
 using namespace std;
 
@@ -418,6 +419,32 @@ namespace CPHelper
 			unordered_map<char, string> translationMap;
 			string alphabet = "abcdefghijklmnopqrstuvwxyz";
 		};
+		vector<int> translateToInt(vector<string> tok)
+		{
+			vector<int> ret;
+			for (string s : tok)
+			{
+				ret.push_back(atoi(s.c_str()));
+			}
+			return ret;
+		}
+		vector<int> translateToInt(string str)
+		{
+			return translateToInt(getTokens(str, ' '));
+		}
+		vector<float> translateToFloat(vector<string> tok)
+		{
+			vector<float> ret;
+			for (string s : tok)
+			{
+				ret.push_back(atof(s.c_str()));
+			}
+			return ret;
+		}
+		vector<float> translateToFloat(string str)
+		{
+			return translateToFloat(getTokens(str, ' '));
+		}
 	}
 	namespace math
 	{
@@ -881,6 +908,28 @@ namespace CPHelper
 				ret.push_back(tmpNode);
 			} while (tmpNode.parent != nullptr);
 			return ret;
+		}
+	}
+	namespace time
+	{
+		using namespace chrono;
+		milliseconds recordedTime;
+		milliseconds timeSinceEpoch()
+		{
+			return duration_cast<milliseconds>(system_clock::now().time_since_epoch());
+		}
+		unsigned long long getTimeDifference(milliseconds m0, milliseconds m1)
+		{
+			return duration_cast<milliseconds>(m0 - m1).count();
+		}
+		void startRecording()
+		{
+			recordedTime = timeSinceEpoch();
+		}
+		unsigned long long stopRecording()
+		{
+			auto now = timeSinceEpoch();
+			return getTimeDifference(now,recordedTime);
 		}
 	}
 }
