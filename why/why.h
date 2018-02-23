@@ -850,12 +850,17 @@ namespace CPHelper
 					if (s == end)
 					{
 						closed.push_back(s);
-						while (open.empty() == false)
+					
+						Node tmpNode = closed.back();
+
+						vector<Node> ret;
+						ret.push_back(tmpNode);
+						do
 						{
-							open.pop();
-						}
-						//idk, i just hope this works
-						break;
+							tmpNode = *tmpNode.parent;
+							ret.push_back(tmpNode);
+						} while (tmpNode.parent != nullptr);
+						return ret;
 					}
 					else if (field->canMove(s, movable))
 					{
@@ -897,17 +902,6 @@ namespace CPHelper
 				if (open.size() != 0)
 					closed.push_back(q);
 			}
-
-			Node tmpNode = closed.back();
-
-			vector<Node> ret;
-			ret.push_back(tmpNode);
-			do
-			{
-				tmpNode = *tmpNode.parent;
-				ret.push_back(tmpNode);
-			} while (tmpNode.parent != nullptr);
-			return ret;
 		}
 	}
 	namespace time
