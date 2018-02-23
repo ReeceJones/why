@@ -693,7 +693,7 @@ namespace CPHelper
 				return (n.x >= 0 && n.y >= 0 && n.x < this->data.at(0).size() && n.y < this->data.size() && CPHelper::stringprocessor::containsChar(movable, this->data.at(n.y).at(n.x)));
 			}
 
-			void display(Node n)
+			void display(Node n, Node start, Node end, char chStart, char chEnd)
 			{
 				vector<string> tmpData = this->data;
 				Node tmpNode = n;
@@ -703,6 +703,9 @@ namespace CPHelper
 					tmpNode = *tmpNode.parent;
 					tmpData.at(tmpNode.y).at(tmpNode.x) = '*';
 				} while (tmpNode.parent != nullptr);
+
+				tmpData.at(start.y).at(start.x) = chStart;
+				tmpData.at(end.y).at(end.x) = chEnd;
 
 				for (string ln : tmpData)
 					cout << ln << endl;
