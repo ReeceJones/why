@@ -29,9 +29,9 @@ namespace CPHelper
 	namespace bitwise
 	{
 		template<typename T>
-		bool testBit(T *data, unsigned short pos)
+		bool testBit(T data, unsigned short pos)
 		{
-			return (*data) & (1 << pos);
+			return (data) & (1 << pos);
 		}
 		template<typename T>
 		unsigned short numBits()
@@ -39,20 +39,20 @@ namespace CPHelper
 			return sizeof(T) * 8;
 		}
 		template<typename T>
-		string rawData(T *data)
+		string rawData(T data)
 		{
-			string b = "";
+			string b(numBits<T>(), '0');
 			const unsigned int uFlag = 1;
 			for (unsigned short l = 0; l < numBits<T>(); l++)
 			{
-				b += (testBit<T>(data, l)) ? '1' : '0';
+				b.at(numBits<T>() - l - 1) = (testBit<T>(data, l)) ? '1' : '0';
 			}
 			return b;
 		}
 		unsigned short estimateBits(unsigned long value)
 		{
 			//log base 2 value
-			return floorl((log(value) / log(2)));
+			return (unsigned short)floorl((log(value) / log(2)));
 		}
 	}
 	namespace input
@@ -349,7 +349,7 @@ namespace CPHelper
 		}
 		string toBinary(char c)
 		{
-			return CPHelper::bitwise::rawData<char>(&c);
+			return CPHelper::bitwise::rawData<char>(c);
 		}
 		string toOctal(char c)
 		{
@@ -444,7 +444,7 @@ namespace CPHelper
 			vector<float> ret;
 			for (string s : tok)
 			{
-				ret.push_back(atof(s.c_str()));
+				ret.push_back((float)atof(s.c_str()));
 			}
 			return ret;
 		}
@@ -457,6 +457,19 @@ namespace CPHelper
 			string t = in;
 			reverse(t.begin(), t.end());
 			return t;
+		}
+		template<typename T>
+		string toString(T val)
+		{
+			return to_string(val);
+		}
+		template<typename T>
+		vector<string> toString(vector<T> vals)
+		{
+			vector<string> ret;
+			for (T t : vals)
+				ret.push_back(to_string(t));
+			return ret;
 		}
 	}
 	namespace math
@@ -672,8 +685,8 @@ namespace CPHelper
 			float dist;
 			switch (h)
 			{
-				case HEURISTIC::EUCLIDEAN: dist = sqrt(pow(fabs(x0 - x1), 2) + pow(fabs(y0 - y1), 2)); break;
-				case HEURISTIC::MANHATTAN: dist = fabs(x0 - x1) + fabs(y0 - y1);
+				case HEURISTIC::EUCLIDEAN: dist = (float)sqrt(pow(fabs(x0 - x1), 2) + pow(fabs(y0 - y1), 2)); break;
+				case HEURISTIC::MANHATTAN: dist = (float)fabs(x0 - x1) + (float)fabs(y0 - y1);
 			}
 			//1 + (1/p); p is the predicted maximum path length (if it is to low the results may be innacurate)
 			//dist *= (1.f + (1 / 1000));
