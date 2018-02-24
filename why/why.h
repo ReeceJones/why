@@ -23,9 +23,6 @@ using namespace std;
 #define PATHFIND_NORMAL (1 << 0)
 #define PATHFIND_DIAGONAL (1 << 1)
 
-//comment out if you don't want to use a tie breaker on the pathfinding
-#define USE_TIE_BREAKER
-
 //named the namespace the wrong thing because i was thinking of something else, so I guess it stands for "copy-paste helper"
 namespace CPHelper
 {
@@ -678,10 +675,8 @@ namespace CPHelper
 				case HEURISTIC::EUCLIDEAN: dist = sqrt(pow(fabs(x0 - x1), 2) + pow(fabs(y0 - y1), 2)); break;
 				case HEURISTIC::MANHATTAN: dist = fabs(x0 - x1) + fabs(y0 - y1);
 			}
-			//1 + (1/p); p is the predicted maximum path length (if it is to low the results may be innacurate
-#ifdef USE_TIE_BREAKER
-			dist *= (1.f + (1 / 10000));
-#endif
+			//1 + (1/p); p is the predicted maximum path length (if it is to low the results may be innacurate)
+			//dist *= (1.f + (1 / 1000));
 			return dist;
 		}
 
@@ -775,31 +770,31 @@ namespace CPHelper
 			Node x;
 			if (useNormal)
 			{
-				x = { n, n->x + 1, n->y, n->g + 1, dist(n->x + 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y, end.x, end.y) };
+				x = { n, n->x + 1, n->y, n->g + 1, dist(n->x + 1, n->y, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x + 1, n->y, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
-				x = { n, n->x - 1, n->y, n->g + 1, dist(n->x - 1, n->y, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y, end.x, end.y) };
+				x = { n, n->x - 1, n->y, n->g + 1, dist(n->x - 1, n->y, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x - 1, n->y, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
-				x = { n, n->x, n->y + 1, n->g + 1, dist(n->x, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y + 1, end.x, end.y) };
+				x = { n, n->x, n->y + 1, n->g + 1, dist(n->x, n->y + 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x, n->y + 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
-				x = { n, n->x, n->y - 1, n->g + 1, dist(n->x, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x, n->y - 1, end.x, end.y) };
+				x = { n, n->x, n->y - 1, n->g + 1, dist(n->x, n->y - 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x, n->y - 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
 			}
 			if (useDiagonal)
 			{
-				x = { n, n->x + 1, n->y + 1, n->g + 1, dist(n->x + 1, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y + 1, end.x, end.y) };
+				x = { n, n->x + 1, n->y + 1, n->g + 1, dist(n->x + 1, n->y + 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x + 1, n->y + 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
-				x = { n, n->x - 1, n->y - 1, n->g + 1, dist(n->x - 1, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y - 1, end.x, end.y) };
+				x = { n, n->x - 1, n->y - 1, n->g + 1, dist(n->x - 1, n->y - 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x - 1, n->y - 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
-				x = { n, n->x - 1, n->y + 1, n->g + 1, dist(n->x - 1, n->y + 1, end.x, end.y), (n->g + 1) + dist(n->x - 1, n->y + 1, end.x, end.y) };
+				x = { n, n->x - 1, n->y + 1, n->g + 1, dist(n->x - 1, n->y + 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x - 1, n->y + 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
-				x = { n, n->x + 1, n->y - 1, n->g + 1, dist(n->x + 1, n->y - 1, end.x, end.y), (n->g + 1) + dist(n->x + 1, n->y - 1, end.x, end.y) };
+				x = { n, n->x + 1, n->y - 1, n->g + 1, dist(n->x + 1, n->y - 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN), (n->g + 1) + dist(n->x + 1, n->y - 1, end.x, end.y, (flags & PATHFIND_DIAGONAL) ? HEURISTIC::EUCLIDEAN : HEURISTIC::MANHATTAN) };
 				if (field->canMove(x, movable))
 					vecRet.push_back(x);
 			}
