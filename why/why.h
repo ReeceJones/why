@@ -267,6 +267,16 @@ namespace CPHelper
 			baseprime.erase(remove(baseprime.begin(), baseprime.end(), rem), baseprime.end());
 			return baseprime;
 		}
+		//use to remove multiple different chars at once
+		string removeChars(string base, string rem)
+		{
+			string ret = base;
+			for (char c : rem)
+			{
+				ret.erase(remove(ret.begin(), ret.end(), c), ret.end());
+			}
+			return ret;
+		}
 		//actually eye cancer
 		string removeNthOccurence(unsigned short n, string s)
 		{
@@ -444,6 +454,12 @@ namespace CPHelper
 		vector<float> translateToFloat(string str)
 		{
 			return translateToFloat(getTokens(str, ' '));
+		}
+		string reverseString(string in)
+		{
+			string t = in;
+			reverse(t.begin(), t.end());
+			return t;
 		}
 	}
 	namespace math
@@ -905,6 +921,7 @@ namespace CPHelper
 				if (open.size() != 0)
 					closed.push_back(q);
 			}
+			return vector<Node>();
 		}
 	}
 	namespace time
