@@ -225,6 +225,13 @@ namespace CPHelper
 			ret.erase(0, middle);
 			return ret;
 		}
+		template<typename T>
+		T cap(T in, T tmax)
+		{
+			if (in > tmax)
+				return tmax;
+			return in;
+		}
 	}
 	namespace stringprocessor
 	{
@@ -478,6 +485,38 @@ namespace CPHelper
 			for (T t : vals)
 				ret.push_back(to_string(t));
 			return ret;
+		}
+		string toUppercase(string in)
+		{
+			string ret = in;
+			for (unsigned int i = 0; i < ret.size(); i++)
+				ret.at(i) = toupper(ret.at((int)i));
+			return ret;
+		}
+		string toLowercase(string in)
+		{
+			string ret = in;
+			for (unsigned int i = 0; i < ret.size(); i++)
+				ret.at(i) = tolower(ret.at((int)i));
+			return ret;
+		}
+		string narrowString(wstring win)
+		{
+			string ret = "";
+			for (wchar_t wc : win)
+			{
+				unsigned int castVal = (unsigned int)wc;
+				ret.push_back((char)CPHelper::dataprocessor::cap<unsigned int>(wc, CHAR_MAX));
+			}
+			return ret;
+		}
+		string append(string base, string end)
+		{
+			return base + end;
+		}
+		string prepend(string base, string start)
+		{
+			return start + base;
 		}
 	}
 	namespace math
