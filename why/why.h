@@ -106,6 +106,14 @@ namespace CPHelper
 			return m;
 		}
 		template<typename T>
+		float avg(vector<T> v)
+		{
+			float sum = 0.f;
+			for (T t : v)
+				sum += (float)t;
+			return sum / v.size();
+		}
+		template<typename T>
 		class BinarySearchTree
 		{
 		public:
