@@ -23,6 +23,14 @@ using namespace std;
 #define PATHFIND_NORMAL (1 << 0)
 #define PATHFIND_DIAGONAL (1 << 1)
 
+string operator*(string left, int right)
+{
+	string ret = "";
+	for (int i = 0; i < right; i++)
+		ret += left;
+	return ret;
+}
+
 //named the namespace the wrong thing because i was thinking of something else, so I guess it stands for "copy-paste helper"
 namespace CPHelper
 {
