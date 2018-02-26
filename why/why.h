@@ -232,6 +232,14 @@ namespace CPHelper
 				return tmax;
 			return in;
 		}
+		template <typename T>
+		vector<T> slice(vector<T> vec, int start, int end) 
+		{
+			auto first = vec.begin() + start;
+			auto last = vec.begin() + end;
+			vector<T> newVec(first, last);
+			return newVec;
+		}
 	}
 	namespace stringprocessor
 	{
