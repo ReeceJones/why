@@ -16,6 +16,7 @@ So this is really just an extension of stl
 #include <functional>
 #include <cmath>
 #include <conio.h>
+#include <fstream>
 #include <chrono>
 
 using namespace std;
@@ -63,6 +64,10 @@ namespace CPHelper
 			return (unsigned short)floorl((log(value) / log(2)));
 		}
 	}
+	namespace stringprocessor
+	{
+		vector<string> getTokens(string, char);
+	}
 	namespace input
 	{
 		vector<string> getInput(istream& inputStream, string terminator)
@@ -91,6 +96,127 @@ namespace CPHelper
 		string getSingleLine()
 		{
 			return getSingleLine(cin);
+		}
+		class Element
+		{
+		public:
+			Element(string data)
+			{
+				this->data = data;
+			}
+			~Element()
+			{
+				this->data.clear();
+			}
+			long getLong()
+			{
+				return atol(this->data.c_str());
+			}
+			long long getLongLong()
+			{
+				return atoll(this->data.c_str());
+			}
+			int getInt()
+			{
+				return atoi(this->data.c_str());
+			}
+			float getFloat()
+			{
+				return atof(this->data.c_str());
+			}
+			string getString()
+			{
+				return this->data;
+			}
+		private:
+			string data;
+		};
+		class Line
+		{
+		public:
+			Line(vector<Element*> elements)
+			{
+				this->elements = elements;
+			}
+			~Line()
+			{
+				this->elements.clear();
+			}
+			Element* getElement(unsigned int loc)
+			{
+				return this->elements.at(loc);
+			}
+			string getData()
+			{
+				string rebuilt = "";
+				for (auto e : this->elements)
+					rebuilt += e->getString() + " ";
+				//remove the last space in the rebuilt string
+				rebuilt.pop_back();
+				return rebuilt;
+			}
+			unsigned int numElements()
+			{
+				return this->elements.size();
+			}
+		private:
+			vector<Element*> elements;
+		};
+		class Input
+		{
+		public:
+			Input()
+			{
+				this->lines.clear();
+			}
+			~Input()
+			{
+				this->lines.clear();
+			}
+			Line* getLine(unsigned short loc)
+			{
+				return this->lines.at(loc);
+			}
+			void getInput(string terminator, istream &stream = cin)
+			{
+				auto in = CPHelper::input::getInput(stream, terminator);
+				this->set(in);
+			}
+			void getInput(unsigned int numLines, istream &stream = cin)
+			{
+				vector<string> in;
+				for (unsigned int i = 0; i < numLines; i++)
+					in.push_back(CPHelper::input::getSingleLine());
+				this->set(in);
+			}
+			unsigned int numLines()
+			{
+				return this->lines.size();
+			}
+		private:
+			void set(vector<string> in)
+			{
+				vector<Line*> lns;
+				for (string s : in)
+				{
+					vector<string> tok = CPHelper::stringprocessor::getTokens(s, ' ');
+					vector<Element*> elem;
+					for (string t : tok)
+						elem.push_back(new Element(t));
+					lns.push_back(new Line(elem));
+				}
+				this->lines = lns;
+			}
+			vector<Line*> lines;
+		};
+		unsigned int getFileLines(string inFile)
+		{
+			ifstream i(inFile);
+			string tmp;
+			unsigned int counter = 0;
+			while (getline(i, tmp))
+				counter++;
+			return counter;
 		}
 	}
 	namespace dataprocessor
